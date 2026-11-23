@@ -1,0 +1,52 @@
+{
+  "licenses": [
+    "ISC (VAD adaptation)",
+    "MIT (Silero/ONNX Runtime)"
+  ],
+  "vad_web": "0.0.31",
+  "onnxruntime_web": "1.22.0",
+  "files": [
+    {
+      "file": "silero_vad_v5.onnx",
+      "url": "https://cdn.jsdelivr.net/npm/@ricky0123/vad-web@0.0.31/dist/silero_vad_v5.onnx",
+      "bytes": 2327524,
+      "sha256": "2623a2953f6ff3d2c1e61740c6cdb7168133479b267dfef114a4a3cc5bdd788f"
+    },
+    {
+      "file": "ort.wasm.min.js",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.wasm.min.js",
+      "bytes": 48327,
+      "sha256": "65e09376df69107e881b5c34d2d37aed333a366b6d941073ec518168e269b87d"
+    },
+    {
+      "file": "ort-wasm-simd-threaded.mjs",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort-wasm-simd-threaded.mjs",
+      "bytes": 20856,
+      "sha256": "30dd851d9c00622940500f71ddd2ff8820c5cb65270816080175b958705385a8"
+    },
+    {
+      "file": "ort-wasm-simd-threaded.wasm",
+      "url": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort-wasm-simd-threaded.wasm",
+      "bytes": 11210254,
+      "sha256": "71aef04959c5c1b6de461b6538e2058e306610034a85aad2742d0c7fd4533fe4"
+    },
+    {
+      "file": "VAD-SILERO-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/ricky0123/vad/de9b3ff83fd44cd7a2b3e07e9454e6b6f0bc249d/LICENSE",
+      "bytes": 1896,
+      "sha256": "239ebca4207803d3507124517c0dd6324c0d5cf73e1c486ade16bac1788f4a79"
+    },
+    {
+      "file": "ORT-LICENSE.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.22.0/LICENSE",
+      "bytes": 1073,
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    },
+    {
+      "file": "ORT-ThirdPartyNotices.txt",
+      "url": "https://raw.githubusercontent.com/microsoft/onnxruntime/v1.22.0/ThirdPartyNotices.txt",
+      "bytes": 326866,
+      "sha256": "e9e90971a8e75a9a8ac0c6412e29c1202d079998389915aa485f46c816c3b4cc"
+    }
+  ]
+}

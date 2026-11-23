@@ -1,0 +1,10 @@
+{
+  "views": {
+    "control": {"title": "Control Panel"},
+    "benchmark": {"title": "Benchmark & Diagnostics"}
+  },
+  "pages": {
+    "control": {"title": "Control Panel"},
+    "benchmark": {"title": "Benchmark & Diagnostics"}
+  }
+}

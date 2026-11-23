@@ -1,0 +1,296 @@
+{
+  "access_mode": {
+    "description": "公开接入方式",
+    "type": "string",
+    "default": "fixed_https",
+    "options": [
+      "fixed_https",
+      "quick_tunnel"
+    ],
+    "hint": "fixed_https使用固定HTTPS入口；quick_tunnel使用临时地址，每次启动可能变化，流量经过Cloudflare；public_origin必须留空。不自动切换模式；固定HTTPS的配置方案详见使用手册中的“固定 HTTPS 配置”一节。"
+  },
+  "cloudflared_path": {
+    "description": "cloudflared 可执行路径",
+    "type": "string",
+    "default": "cloudflared",
+    "hint": "PATH中的名称或绝对路径；须在AstrBot运行环境内可执行。插件不会自动下载或安装。"
+  },
+  "tunnel_start_timeout": {
+    "description": "隧道启动超时秒数",
+    "type": "int",
+    "default": 30,
+    "hint": "1至120秒；等待临时地址和隧道建立连接，超时则启动失败。",
+    "slider": {
+      "min": 1,
+      "max": 120,
+      "step": 1
+    }
+  },
+  "enabled": {
+    "description": "启用通话功能",
+    "type": "bool",
+    "default": false,
+    "hint": "默认关闭，不监听端口也不使用任何服务。启用前需完成接入方式和语音服务配置。"
+  },
+  "public_origin": {
+    "description": "固定 HTTPS 公开地址",
+    "type": "string",
+    "default": "",
+    "hint": "仅https://域名[:端口]，不带路径。反向代理须保留Host/Origin并转发/bot-call/路径。"
+  },
+  "listen_port": {
+    "description": "专用 HTTP 端口",
+    "type": "int",
+    "default": 6191,
+    "hint": "默认 6191；与 listen_host 一起决定绑定地址。不要直接暴露公网。",
+    "slider": {
+      "min": 1,
+      "max": 65535,
+      "step": 1
+    }
+  },
+  "review_tokens": {
+    "description": "回顾输出预留额度",
+    "type": "int",
+    "default": 2048,
+    "hint": "回顾整理时为模型输出预留的 token 数，用于规划输入预算，不是实际生成上限。一般不需要修改。",
+    "slider": {
+      "min": 1,
+      "max": 2147483647,
+      "step": 1
+    }
+  },
+  "safety_tokens": {
+    "description": "回顾输入预算安全余量",
+    "type": "int",
+    "default": 1024,
+    "hint": "回顾整理时在 token 估算基础上额外预留的安全余量，防止超出模型上下文窗口。一般不需要修改。",
+    "slider": {
+      "min": 1,
+      "max": 2147483647,
+      "step": 1
+    }
+  },
+  "max_audio_bytes": {
+    "description": "每段输入音频字节上限",
+    "type": "int",
+    "default": 2097152,
+    "slider": {
+      "min": 1,
+      "max": 2147483647,
+      "step": 1
+    },
+    "hint": "每段上传原音频上限；过小会拒绝正常录音，过大会增加内存与存储压力。修改后重载生效。"
+  },
+  "max_wav_bytes": {
+    "description": "每段转码WAV字节上限",
+    "type": "int",
+    "default": 16777216,
+    "slider": {
+      "min": 1,
+      "max": 2147483647,
+      "step": 1
+    },
+    "hint": "每段识别用 WAV 上限；过小会拒绝转码产物，过大会增加内存与存储压力。修改后重载生效。"
+  },
+  "review_instructions": {
+    "description": "回顾写作要求",
+    "type": "text",
+    "default": "",
+    "hint": "补充回顾的组织方式、语气和详略偏好，最多2000字符。留空使用默认写作模板。修改后需重载插件，对新通话生效。不要填写密钥或用户正文。"
+  },
+  "call_chat_provider_id": {
+    "description": "通话专用聊天模型（可选）",
+    "type": "string",
+    "default": "",
+    "hint": "填写 AstrBot 中已启用的聊天模型 Provider ID；留空继承来源会话当前模型。可选一个关闭思考模式的快速模型以降低延迟。只影响电话回复，不改变普通聊天、人格、工具权限或回顾模型；无效时拒绝发起，不自动回退。修改后重载生效。"
+  },
+  "call_history_turns": {
+    "description": "电话保留的来源历史轮数",
+    "type": "int",
+    "default": 8,
+    "hint": "按用户发言轮数保留来源近期原文，默认8；0关闭轮数限制；与call_history_max_chars同时为0时完整恢复原历史，不清理思考或工具、不截断、不生成摘要。否则仍清理历史工具并遵守字数上限。本通自身轮次和工具不受影响。",
+    "slider": {
+      "min": 0,
+      "max": 10000,
+      "step": 1
+    }
+  },
+  "call_history_summary": {
+    "description": "后台概括电话早期背景",
+    "type": "bool",
+    "default": true,
+    "hint": "使用通话实际选中的聊天模型生成一次摘要，会增加一次模型调用；未就绪或失败时仅用近期原文，不阻塞回复、不自动重试。仅内存保存；历史轮数和字数上限同时为0时不生成。"
+  },
+  "call_history_max_chars": {
+    "description": "电话来源近期原文字数上限",
+    "type": "int",
+    "default": 8000,
+    "hint": "清理历史工具后按字数裁剪，仅改电话副本；0表示不限制字数；与call_history_turns同时为0时完整恢复原行为，否则轮数窗口和历史清理仍生效。单条超长内容标注已截断。",
+    "slider": {
+      "min": 0,
+      "max": 10000000,
+      "step": 1
+    }
+  },
+  "call_skip_plugin_hooks": {
+    "description": "通话跳过的插件钩子",
+    "type": "list",
+    "default": [],
+    "hint": "填插件注册名称，每通开始时冻结；只跳过电话请求和Agent的插件钩子，不禁用插件工具，不影响普通聊天；reserved插件不可跳过。默认空。"
+  },
+  "call_reply_style": {
+    "description": "通话表达要求",
+    "type": "text",
+    "default": "你正在和用户打电话，对方是听你说话，不是看文字。延续原有人格和称呼。每次回复一般一到三句，尽量不超过六十个字，只说一个重点。内容复杂时先说结论，再问对方要不要细说，按追问展开。不要列表、编号、Markdown、括号补充和表情；数字、时间、单位按口语读法说。可以自然地追问一句。用户明确要求细说时可以展开，不省略重要事实或不确定性。",
+    "hint": "追加在电话请求的人格之后，用于引导模型以口语方式回复；最多2000字符。留空只用默认通话提示。不影响普通聊天、人格、工具与回顾。重载后新通话生效，不填正文或密钥。"
+  },
+  "call_vad_silence_ms": {
+    "description": "自动断句停顿毫秒",
+    "type": "int",
+    "default": 1200,
+    "hint": "300～3000毫秒；人声后连续停顿达到此值切段，太短易切断话，太长增加等待。重载后新页面读取，手机不能修改。",
+    "slider": {
+      "min": 300,
+      "max": 3000,
+      "step": 1
+    }
+  },
+  "call_vad_sensitivity": {
+    "description": "人声检测灵敏度",
+    "type": "int",
+    "default": 50,
+    "hint": "10～90，默认50；越大越容易检出弱人声，也越容易把噪声当人声；越小越容易漏掉轻声。只影响本地检测，不改变识别服务。重载后新页面读取。",
+    "slider": {
+      "min": 10,
+      "max": 90,
+      "step": 1
+    }
+  },
+  "review_style": {
+    "description": "回顾写法",
+    "type": "string",
+    "default": "default",
+    "options": [
+      "default",
+      "bullets",
+      "brief",
+      "sections"
+    ],
+    "hint": "default为详细叙述，按开头、中段、结尾完整记录；bullets为一句概括加三至五条要点；brief为一两段口语小结；sections为概括、聊了什么、决定、待办、未定。只改呈现，不改变事实底线；重载后新通话生效。"
+  },
+  "review_voice": {
+    "description": "回顾口吻",
+    "type": "string",
+    "default": "default",
+    "options": [
+      "default",
+      "bot",
+      "neutral"
+    ],
+    "hint": "default为客观回顾，不固定称呼或人称；bot延续来源人格对用户说；neutral明确用用户、助手指代双方，不用我们。重载后新通话生效。"
+  },
+  "review_system_notes": {
+    "description": "回顾系统说明",
+    "type": "string",
+    "default": "default",
+    "options": [
+      "default",
+      "on_issue",
+      "none"
+    ],
+    "hint": "default为完整说明，含材料缺失、播放是否听完及运行结果的限制；on_issue仅在确有缺失片段、工具结果未知或回复未保存等问题时结尾一句通俗说明；none不写系统说明，事实中的不确定性仍保留。重载后新通话生效。"
+  },
+  "call_max_continuous_segments": {
+    "description": "连续说话最多段数",
+    "type": "int",
+    "default": 10,
+    "hint": "每段最多30秒，默认10段约5分钟，最多20段；达到此段数后回复；1为每30秒收尾。重载后生效。",
+    "slider": {
+      "min": 1,
+      "max": 20,
+      "step": 1
+    }
+  },
+  "audio_retention_days": {
+    "description": "音频材料保留天数",
+    "type": "int",
+    "default": 7,
+    "slider": {
+      "min": 0,
+      "max": 3650,
+      "step": 1
+    },
+    "hint": "回顾完成后保留通话合成音频与未识别原音的天数，默认 7 天；到期后自动分批清理并保留文字记录与回顾。填 0 表示不自动清理。修改后重载生效。"
+  },
+  "call_tts_provider_id": {
+    "type": "string",
+    "description": "电话合成服务",
+    "hint": "留空沿用 AstrBot 当前 TTS，也可选择已启用的服务。支持百炼双向流式或 OpenAI 兼容 24 kHz 流式的服务，首句可边合成边播放。流式不可用时自动改用整句合成。重载后新通话生效。",
+    "default": ""
+  },
+  "call_capture_mode": {
+    "type": "string",
+    "description": "录音方式",
+    "default": "auto",
+    "options": [
+      "auto",
+      "legacy"
+    ],
+    "hint": "自动保留起声前约半秒，浏览器不支持时兼容录音；legacy使用原录音路径。重载后新通话生效。"
+  },
+  "call_barge_in": {
+    "description": "朗读时插话",
+    "type": "string",
+    "default": "auto",
+    "options": [
+      "auto",
+      "off"
+    ],
+    "hint": "auto：持续采音时本地暂停并识别一次；off：维持轮流说话。legacy采音强制关闭。修改后重载，新通话生效。"
+  },
+  "call_backchannel_phrases": {
+    "type": "list",
+    "description": "朗读期间的附和短语",
+    "hint": "整句只有这些短语且不在问句或回复末尾时，从停点续播。留空恢复所有非空文字均按插话处理；关闭插话请设 call_barge_in=off。重载后生效。",
+    "default": [
+      "嗯",
+      "恩",
+      "唔",
+      "哦",
+      "噢",
+      "喔",
+      "啊",
+      "对",
+      "对的",
+      "是",
+      "是的",
+      "好",
+      "好的",
+      "行",
+      "明白",
+      "知道了",
+      "OK"
+    ]
+  },
+  "listen_host": {
+    "description": "固定 HTTPS 监听地址",
+    "type": "string",
+    "default": "127.0.0.1",
+    "hint": "IPv4/IPv6 地址字面量；Docker 可填 0.0.0.0，并配置可信代理。临时隧道始终使用 127.0.0.1。"
+  },
+  "trusted_proxies": {
+    "description": "固定 HTTPS 可信代理",
+    "type": "list",
+    "default": [
+      "127.0.0.1"
+    ],
+    "hint": "每行一个 IP 或 CIDR，仅填写代理地址或专用 Docker 子网；禁止 /0。临时隧道始终只信任 127.0.0.1。"
+  },
+  "call_stt_provider_id": {
+    "description": "电话专用 STT",
+    "type": "string",
+    "default": "",
+    "hint": "留空沿用来源会话的语音识别服务；选择 AstrBot 已启用的 STT，保存后重载生效。"
+  }
+}

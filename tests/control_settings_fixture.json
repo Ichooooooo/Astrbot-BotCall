@@ -1,0 +1,813 @@
+{
+ "version": "0.9.0",
+ "revision": "a1b2c3d4e5f60718",
+ "writable": true,
+ "reload_required": false,
+ "active_calls": 0,
+ "groups": [
+  {
+   "id": "access",
+   "title": "接入",
+   "icon": "plug",
+   "sections": [
+    {
+     "id": "entry",
+     "title": "入口",
+     "fields": [
+      {
+       "key": "enabled",
+       "label": "启用 Bot-Call",
+       "help": "关闭后不再创建新通话；正在进行的通话不受影响。",
+       "type": "bool",
+       "value": true,
+       "default": true,
+       "applies": "reload"
+      },
+      {
+       "key": "access_mode",
+       "label": "访问方式",
+       "help": "quick_tunnel 只适合调试；正式使用请配置固定的 HTTPS 入口。",
+       "type": "choice",
+       "value": "quick_tunnel",
+       "default": "quick_tunnel",
+       "applies": "reload",
+       "choices": [
+        {
+         "value": "quick_tunnel",
+         "label": "临时隧道（调试）"
+        },
+        {
+         "value": "public_origin",
+         "label": "固定 HTTPS 入口"
+        }
+       ]
+      },
+      {
+       "key": "public_origin",
+       "label": "固定 HTTPS 入口地址",
+       "help": "选择“固定 HTTPS 入口”时填写，例如 https://call.example.com。",
+       "type": "string",
+       "value": "",
+       "default": "",
+       "applies": "reload"
+      },
+      {
+       "key": "listen_port",
+       "label": "本地监听端口",
+       "help": "通话页面服务监听的本机端口。",
+       "type": "int",
+       "value": 6191,
+       "default": 6191,
+       "min": 1024,
+       "max": 65535,
+       "applies": "reload"
+      }
+     ]
+    },
+    {
+     "id": "tunnel",
+     "title": "临时隧道",
+     "fields": [
+      {
+       "key": "cloudflared_path",
+       "label": "cloudflared 路径",
+       "help": "留空表示自动查找。",
+       "type": "string",
+       "value": "",
+       "default": "",
+       "applies": "reload"
+      },
+      {
+       "key": "tunnel_start_timeout",
+       "label": "隧道启动等待（秒）",
+       "help": "等待临时隧道给出地址的最长时间。",
+       "type": "int",
+       "value": 30,
+       "default": 30,
+       "min": 5,
+       "max": 120,
+       "applies": "reload"
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "key": "enabled",
+     "label": "启用 Bot-Call",
+     "help": "关闭后不再创建新通话；正在进行的通话不受影响。",
+     "type": "bool",
+     "value": true,
+     "default": true,
+     "applies": "reload"
+    },
+    {
+     "key": "access_mode",
+     "label": "访问方式",
+     "help": "quick_tunnel 只适合调试；正式使用请配置固定的 HTTPS 入口。",
+     "type": "choice",
+     "value": "quick_tunnel",
+     "default": "quick_tunnel",
+     "applies": "reload",
+     "choices": [
+      {
+       "value": "quick_tunnel",
+       "label": "临时隧道（调试）"
+      },
+      {
+       "value": "public_origin",
+       "label": "固定 HTTPS 入口"
+      }
+     ]
+    },
+    {
+     "key": "public_origin",
+     "label": "固定 HTTPS 入口地址",
+     "help": "选择“固定 HTTPS 入口”时填写，例如 https://call.example.com。",
+     "type": "string",
+     "value": "",
+     "default": "",
+     "applies": "reload"
+    },
+    {
+     "key": "listen_port",
+     "label": "本地监听端口",
+     "help": "通话页面服务监听的本机端口。",
+     "type": "int",
+     "value": 6191,
+     "default": 6191,
+     "min": 1024,
+     "max": 65535,
+     "applies": "reload"
+    },
+    {
+     "key": "cloudflared_path",
+     "label": "cloudflared 路径",
+     "help": "留空表示自动查找。",
+     "type": "string",
+     "value": "",
+     "default": "",
+     "applies": "reload"
+    },
+    {
+     "key": "tunnel_start_timeout",
+     "label": "隧道启动等待（秒）",
+     "help": "等待临时隧道给出地址的最长时间。",
+     "type": "int",
+     "value": 30,
+     "default": 30,
+     "min": 5,
+     "max": 120,
+     "applies": "reload"
+    }
+   ]
+  },
+  {
+   "id": "conversation",
+   "title": "对话",
+   "icon": "chat",
+   "sections": [
+    {
+     "id": "reply",
+     "title": "通话模型与回复",
+     "fields": [
+      {
+       "key": "call_chat_provider_id",
+       "label": "通话专用聊天模型",
+       "help": "留空则沿用来源会话正在用的模型。电话里建议选关闭思考的快速模型。",
+       "type": "choice",
+       "value": "example/fast-chat",
+       "default": "",
+       "applies": "next_call",
+       "choices": [
+        {
+         "value": "",
+         "label": "跟随来源会话"
+        },
+        {
+         "value": "example/fast-chat",
+         "label": "example / fast-chat"
+        },
+        {
+         "value": "openrouter/v4.1-flash",
+         "label": "openrouter / v4.1-flash"
+        },
+        {
+         "value": "siliconflow/qwen3-30b",
+         "label": "siliconflow / qwen3-30b"
+        },
+        {
+         "value": "local/glm-4-air",
+         "label": "local / glm-4-air"
+        },
+        {
+         "value": "local/qwen3-8b",
+         "label": "local / qwen3-8b"
+        }
+       ]
+      },
+      {
+       "key": "call_reply_style",
+       "label": "电话回复风格",
+       "help": "追加给模型的口语化要求。留空使用内置的中文电话表达规则。",
+       "type": "text",
+       "value": "",
+       "default": "",
+       "applies": "next_call"
+      },
+      {
+       "key": "call_skip_plugin_hooks",
+       "label": "通话时跳过的插件钩子",
+       "help": "每行一个插件名；这些插件在通话回复时不参与，以降低延迟。",
+       "type": "list",
+       "value": [],
+       "default": [],
+       "applies": "next_call"
+      }
+     ]
+    },
+    {
+     "id": "context",
+     "title": "上下文",
+     "fields": [
+      {
+       "key": "call_history_turns",
+       "label": "带入的最近对话轮数",
+       "help": "通话开始时带入原会话最近多少轮对话。",
+       "type": "int",
+       "value": 8,
+       "default": 8,
+       "min": 0,
+       "max": 50,
+       "applies": "next_call"
+      },
+      {
+       "key": "call_history_summary",
+       "label": "较早对话先做摘要",
+       "help": "超出轮数的较早内容压缩成摘要带入。",
+       "type": "bool",
+       "value": true,
+       "default": true,
+       "applies": "next_call"
+      },
+      {
+       "key": "call_history_max_chars",
+       "label": "带入内容字数上限",
+       "help": "带入的历史文字总长度上限。",
+       "type": "int",
+       "value": 8000,
+       "default": 8000,
+       "min": 500,
+       "max": 40000,
+       "applies": "next_call"
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "key": "call_chat_provider_id",
+     "label": "通话专用聊天模型",
+     "help": "留空则沿用来源会话正在用的模型。电话里建议选关闭思考的快速模型。",
+     "type": "choice",
+     "value": "example/fast-chat",
+     "default": "",
+     "applies": "next_call",
+     "choices": [
+      {
+       "value": "",
+       "label": "跟随来源会话"
+      },
+      {
+       "value": "example/fast-chat",
+       "label": "example / fast-chat"
+      },
+      {
+       "value": "openrouter/v4.1-flash",
+       "label": "openrouter / v4.1-flash"
+      },
+      {
+       "value": "siliconflow/qwen3-30b",
+       "label": "siliconflow / qwen3-30b"
+      },
+      {
+       "value": "local/glm-4-air",
+       "label": "local / glm-4-air"
+      },
+      {
+       "value": "local/qwen3-8b",
+       "label": "local / qwen3-8b"
+      }
+     ]
+    },
+    {
+     "key": "call_reply_style",
+     "label": "电话回复风格",
+     "help": "追加给模型的口语化要求。留空使用内置的中文电话表达规则。",
+     "type": "text",
+     "value": "",
+     "default": "",
+     "applies": "next_call"
+    },
+    {
+     "key": "call_skip_plugin_hooks",
+     "label": "通话时跳过的插件钩子",
+     "help": "每行一个插件名；这些插件在通话回复时不参与，以降低延迟。",
+     "type": "list",
+     "value": [],
+     "default": [],
+     "applies": "next_call"
+    },
+    {
+     "key": "call_history_turns",
+     "label": "带入的最近对话轮数",
+     "help": "通话开始时带入原会话最近多少轮对话。",
+     "type": "int",
+     "value": 8,
+     "default": 8,
+     "min": 0,
+     "max": 50,
+     "applies": "next_call"
+    },
+    {
+     "key": "call_history_summary",
+     "label": "较早对话先做摘要",
+     "help": "超出轮数的较早内容压缩成摘要带入。",
+     "type": "bool",
+     "value": true,
+     "default": true,
+     "applies": "next_call"
+    },
+    {
+     "key": "call_history_max_chars",
+     "label": "带入内容字数上限",
+     "help": "带入的历史文字总长度上限。",
+     "type": "int",
+     "value": 8000,
+     "default": 8000,
+     "min": 500,
+     "max": 40000,
+     "applies": "next_call"
+    }
+   ]
+  },
+  {
+   "id": "audio",
+   "title": "语音与断句",
+   "icon": "mic",
+   "sections": [
+    {
+     "id": "vad",
+     "title": "合成与自动断句",
+     "fields": [
+      {
+       "key": "call_stt_provider_id",
+       "label": "电话专用 STT",
+       "help": "留空沿用来源会话的语音识别服务；选择 AstrBot 已启用的 STT，保存后重载生效。",
+       "type": "choice",
+       "value": "",
+       "default": "",
+       "applies": "reload",
+       "choices": [
+        {
+         "value": "",
+         "label": "沿用 AstrBot 当前 STT"
+        },
+        {
+         "value": "your-stt-provider-id",
+         "label": "示例语音识别服务"
+        }
+       ]
+      },
+      {
+       "key": "call_tts_provider_id",
+       "label": "电话合成服务",
+       "help": "留空沿用 AstrBot 当前 TTS，也可选择已启用的服务。支持百炼双向流式或 OpenAI 兼容 24 kHz 流式的服务，首句可边合成边播放。流式不可用时自动改用整句合成。重载后新通话生效。",
+       "type": "choice",
+       "value": "",
+       "default": "",
+       "applies": "reload",
+       "choices": [
+        {
+         "value": "",
+         "label": "沿用 AstrBot 当前 TTS"
+        },
+        {
+         "value": "dashscope_tts",
+         "label": "dashscope_tts（cosyvoice-v3-flash）"
+        }
+       ]
+      },
+      {
+       "key": "call_vad_silence_ms",
+       "label": "停顿时长（毫秒）",
+       "help": "说完话停顿多久自动发送。越小越快，但可能把一句话截成两段。",
+       "type": "int",
+       "value": 1200,
+       "default": 1200,
+       "min": 300,
+       "max": 3000,
+       "applies": "next_call"
+      },
+      {
+       "key": "call_vad_sensitivity",
+       "label": "人声检测灵敏度",
+       "help": "10～90，默认50；越大越容易检出弱人声，也越容易把噪声当人声；越小越容易漏掉轻声。只影响本地检测，不改变识别服务。重载后新页面读取。",
+       "type": "int",
+       "value": 50,
+       "default": 50,
+       "min": 10,
+       "max": 90,
+       "applies": "reload"
+      }
+     ]
+    },
+    {
+     "id": "limits",
+     "title": "录音限制",
+     "fields": [
+      {
+       "key": "max_audio_bytes",
+       "label": "单段录音上限（字节）",
+       "help": "超过则整段保留不上传，不会截断。",
+       "type": "int",
+       "value": 2097152,
+       "default": 2097152,
+       "min": 65536,
+       "max": 16777216,
+       "applies": "next_call"
+      },
+      {
+       "key": "max_wav_bytes",
+       "label": "转码后音频上限（字节）",
+       "help": "转成 WAV 后的大小上限。",
+       "type": "int",
+       "value": 16777216,
+       "default": 16777216,
+       "min": 1048576,
+       "max": 67108864,
+       "applies": "next_call"
+      }
+     ]
+    },
+    {
+     "id": "retention",
+     "title": "音频留存",
+     "fields": [
+      {
+       "key": "audio_retention_days",
+       "label": "音频材料保留天数",
+       "help": "回顾完成后保留通话合成音频与未识别原音的天数，默认 7 天；到期后自动分批清理并保留文字记录与回顾。填 0 表示不自动清理。修改后重载生效。",
+       "type": "int",
+       "value": 7,
+       "default": 7,
+       "min": 0,
+       "max": 3650,
+       "applies": "reload"
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "key": "call_stt_provider_id",
+     "label": "电话专用 STT",
+     "help": "留空沿用来源会话的语音识别服务；选择 AstrBot 已启用的 STT，保存后重载生效。",
+     "type": "choice",
+     "value": "",
+     "default": "",
+     "applies": "reload",
+     "choices": [
+      {
+       "value": "",
+       "label": "沿用 AstrBot 当前 STT"
+      },
+      {
+       "value": "your-stt-provider-id",
+       "label": "示例语音识别服务"
+      }
+     ]
+    },
+    {
+     "key": "call_tts_provider_id",
+     "label": "电话合成服务",
+     "help": "留空沿用 AstrBot 当前 TTS，也可选择已启用的服务。支持百炼双向流式或 OpenAI 兼容 24 kHz 流式的服务，首句可边合成边播放。流式不可用时自动改用整句合成。重载后新通话生效。",
+     "type": "choice",
+     "value": "",
+     "default": "",
+     "applies": "reload",
+     "choices": [
+      {
+       "value": "",
+       "label": "沿用 AstrBot 当前 TTS"
+      },
+      {
+       "value": "dashscope_tts",
+       "label": "dashscope_tts（cosyvoice-v3-flash）"
+      }
+     ]
+    },
+    {
+     "key": "call_vad_silence_ms",
+     "label": "停顿时长（毫秒）",
+     "help": "说完话停顿多久自动发送。越小越快，但可能把一句话截成两段。",
+     "type": "int",
+     "value": 1200,
+     "default": 1200,
+     "min": 300,
+     "max": 3000,
+     "applies": "next_call"
+    },
+    {
+     "key": "call_vad_sensitivity",
+     "label": "人声检测灵敏度",
+     "help": "10～90，默认50；越大越容易检出弱人声，也越容易把噪声当人声；越小越容易漏掉轻声。只影响本地检测，不改变识别服务。重载后新页面读取。",
+     "type": "int",
+     "value": 50,
+     "default": 50,
+     "min": 10,
+     "max": 90,
+     "applies": "reload"
+    },
+    {
+     "key": "max_audio_bytes",
+     "label": "单段录音上限（字节）",
+     "help": "超过则整段保留不上传，不会截断。",
+     "type": "int",
+     "value": 2097152,
+     "default": 2097152,
+     "min": 65536,
+     "max": 16777216,
+     "applies": "next_call"
+    },
+    {
+     "key": "max_wav_bytes",
+     "label": "转码后音频上限（字节）",
+     "help": "转成 WAV 后的大小上限。",
+     "type": "int",
+     "value": 16777216,
+     "default": 16777216,
+     "min": 1048576,
+     "max": 67108864,
+     "applies": "next_call"
+    },
+    {
+     "key": "audio_retention_days",
+     "label": "音频材料保留天数",
+     "help": "回顾完成后保留通话合成音频与未识别原音的天数，默认 7 天；到期后自动分批清理并保留文字记录与回顾。填 0 表示不自动清理。修改后重载生效。",
+     "type": "int",
+     "value": 7,
+     "default": 7,
+     "min": 0,
+     "max": 3650,
+     "applies": "reload"
+    }
+   ]
+  },
+  {
+   "id": "review",
+   "title": "回顾",
+   "icon": "note",
+   "sections": [
+    {
+     "id": "style",
+     "title": "回顾写法",
+     "fields": [
+      {
+       "key": "review_style",
+       "label": "回顾写法",
+       "help": "通话结束后发回原聊天的回顾怎么写。",
+       "type": "choice",
+       "value": "default",
+       "default": "default",
+       "applies": "next_call",
+       "choices": [
+        {
+         "value": "default",
+         "label": "标准回顾",
+         "description": "先概述，再按话题分段，和以前一样。",
+         "example": "本次通话聊了你最近的工作安排……"
+        },
+        {
+         "value": "bullets",
+         "label": "要点＋待办",
+         "description": "先列要点，再单列待办。",
+         "example": "要点：\n· 下周三前交方案\n待办：\n· 约客户确认时间"
+        },
+        {
+         "value": "spoken",
+         "label": "口语小结",
+         "description": "像朋友一样几句话说清楚。",
+         "example": "刚才咱们主要聊了下周的安排，你打算先把方案赶出来。"
+        },
+        {
+         "value": "sections",
+         "label": "分节详细",
+         "description": "分成背景、讨论、结论几节，信息最全。",
+         "example": "一、背景\n二、讨论\n三、结论"
+        }
+       ]
+      },
+      {
+       "key": "review_voice",
+       "label": "回顾口吻",
+       "help": "回顾是以谁的口吻写的。",
+       "type": "choice",
+       "value": "default",
+       "default": "default",
+       "applies": "next_call",
+       "choices": [
+        {
+         "value": "default",
+         "label": "第三人称叙述"
+        },
+        {
+         "value": "bot_to_user",
+         "label": "Bot 对你说"
+        },
+        {
+         "value": "neutral",
+         "label": "中立记录"
+        }
+       ]
+      },
+      {
+       "key": "review_system_notes",
+       "label": "系统说明",
+       "help": "回顾末尾是否附带系统说明（例如转写不完整的提示）。",
+       "type": "choice",
+       "value": "default",
+       "default": "default",
+       "applies": "next_call",
+       "choices": [
+        {
+         "value": "default",
+         "label": "附带完整系统说明"
+        },
+        {
+         "value": "problems_only",
+         "label": "只在出问题时写一句"
+        },
+        {
+         "value": "none",
+         "label": "不写"
+        }
+       ]
+      },
+      {
+       "key": "review_instructions",
+       "label": "附加要求",
+       "help": "追加给回顾生成的额外要求，例如“多记待办”。",
+       "type": "text",
+       "value": "",
+       "default": "",
+       "applies": "next_call"
+      }
+     ]
+    },
+    {
+     "id": "length",
+     "title": "篇幅",
+     "fields": [
+      {
+       "key": "review_tokens",
+       "label": "回顾长度上限（token）",
+       "help": "回顾生成最多使用的 token 数。",
+       "type": "int",
+       "value": 2048,
+       "default": 2048,
+       "min": 256,
+       "max": 8192,
+       "applies": "next_call"
+      },
+      {
+       "key": "safety_tokens",
+       "label": "安全检查长度（token）",
+       "help": "安全检查步骤使用的 token 上限。",
+       "type": "int",
+       "value": 1024,
+       "default": 1024,
+       "min": 128,
+       "max": 8192,
+       "applies": "next_call"
+      }
+     ]
+    }
+   ],
+   "fields": [
+    {
+     "key": "review_style",
+     "label": "回顾写法",
+     "help": "通话结束后发回原聊天的回顾怎么写。",
+     "type": "choice",
+     "value": "default",
+     "default": "default",
+     "applies": "next_call",
+     "choices": [
+      {
+       "value": "default",
+       "label": "标准回顾",
+       "description": "先概述，再按话题分段，和以前一样。",
+       "example": "本次通话聊了你最近的工作安排……"
+      },
+      {
+       "value": "bullets",
+       "label": "要点＋待办",
+       "description": "先列要点，再单列待办。",
+       "example": "要点：\n· 下周三前交方案\n待办：\n· 约客户确认时间"
+      },
+      {
+       "value": "spoken",
+       "label": "口语小结",
+       "description": "像朋友一样几句话说清楚。",
+       "example": "刚才咱们主要聊了下周的安排，你打算先把方案赶出来。"
+      },
+      {
+       "value": "sections",
+       "label": "分节详细",
+       "description": "分成背景、讨论、结论几节，信息最全。",
+       "example": "一、背景\n二、讨论\n三、结论"
+      }
+     ]
+    },
+    {
+     "key": "review_voice",
+     "label": "回顾口吻",
+     "help": "回顾是以谁的口吻写的。",
+     "type": "choice",
+     "value": "default",
+     "default": "default",
+     "applies": "next_call",
+     "choices": [
+      {
+       "value": "default",
+       "label": "第三人称叙述"
+      },
+      {
+       "value": "bot_to_user",
+       "label": "Bot 对你说"
+      },
+      {
+       "value": "neutral",
+       "label": "中立记录"
+      }
+     ]
+    },
+    {
+     "key": "review_system_notes",
+     "label": "系统说明",
+     "help": "回顾末尾是否附带系统说明（例如转写不完整的提示）。",
+     "type": "choice",
+     "value": "default",
+     "default": "default",
+     "applies": "next_call",
+     "choices": [
+      {
+       "value": "default",
+       "label": "附带完整系统说明"
+      },
+      {
+       "value": "problems_only",
+       "label": "只在出问题时写一句"
+      },
+      {
+       "value": "none",
+       "label": "不写"
+      }
+     ]
+    },
+    {
+     "key": "review_instructions",
+     "label": "附加要求",
+     "help": "追加给回顾生成的额外要求，例如“多记待办”。",
+     "type": "text",
+     "value": "",
+     "default": "",
+     "applies": "next_call"
+    },
+    {
+     "key": "review_tokens",
+     "label": "回顾长度上限（token）",
+     "help": "回顾生成最多使用的 token 数。",
+     "type": "int",
+     "value": 2048,
+     "default": 2048,
+     "min": 256,
+     "max": 8192,
+     "applies": "next_call"
+    },
+    {
+     "key": "safety_tokens",
+     "label": "安全检查长度（token）",
+     "help": "安全检查步骤使用的 token 上限。",
+     "type": "int",
+     "value": 1024,
+     "default": 1024,
+     "min": 128,
+     "max": 8192,
+     "applies": "next_call"
+    }
+   ]
+  }
+ ]
+}

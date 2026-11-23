@@ -1,0 +1,27 @@
+# Python and development caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+
+# Local runtime data and credentials
+/.env
+/.env.*
+/data/
+/logs/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Editor/OS temporary files
+.DS_Store
+Thumbs.db
+*~
+
+# Build output; release packages are archived outside the repo
+/dist/

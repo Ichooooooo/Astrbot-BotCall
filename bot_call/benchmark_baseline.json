@@ -1,0 +1,58 @@
+{
+  "label": "标准配置",
+  "placeholder": false,
+  "measured_at": "2026-11-17",
+  "environment": "阿里云华东 2 核 1.6 GB，固定 HTTPS（宿主 nginx），Android QQ 内置浏览器；2026-11-17 三通实测共约 38 轮，持续倾听与插话开启",
+  "config": {
+    "llm": {
+      "label": "DeepSeek（关闭思考）",
+      "model": "deepseek-v4-flash",
+      "thinking": "off",
+      "model_aliases": [
+        "deepseek-flash",
+        "deepseek-v4-flash"
+      ]
+    },
+    "stt": {
+      "label": "硅基流动 Qwen3-ASR-1.7B",
+      "model": "Qwen/Qwen3-ASR-1.7B"
+    },
+    "tts": {
+      "label": "百炼 cosyvoice-v3-flash",
+      "model": "cosyvoice-v3-flash",
+      "streaming": true
+    },
+    "access": "固定 HTTPS",
+    "silence_ms": 1400
+  },
+  "stages": {
+    "endpoint": {
+      "median_ms": 1408,
+      "p90_ms": 1408
+    },
+    "upload": {
+      "median_ms": 210,
+      "p90_ms": 617
+    },
+    "stt": {
+      "median_ms": 401,
+      "p90_ms": 1400
+    },
+    "llm": {
+      "median_ms": 1189,
+      "p90_ms": 1574
+    },
+    "tts": {
+      "median_ms": 432,
+      "p90_ms": 488
+    },
+    "delivery": {
+      "median_ms": 191,
+      "p90_ms": 206
+    },
+    "total": {
+      "median_ms": 3953,
+      "p90_ms": 6306
+    }
+  }
+}

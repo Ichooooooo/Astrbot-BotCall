@@ -1,0 +1,2 @@
+# Python 3.12; pin one matrix version when creating each isolated venv
+astrbot>=4.27.2,<4.30,!=4.28.*

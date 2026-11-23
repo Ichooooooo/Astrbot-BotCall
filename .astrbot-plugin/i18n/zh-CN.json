@@ -1,0 +1,10 @@
+{
+  "views": {
+    "control": {"title": "控制面板"},
+    "benchmark": {"title": "评测与诊断"}
+  },
+  "pages": {
+    "control": {"title": "控制面板"},
+    "benchmark": {"title": "评测与诊断"}
+  }
+}

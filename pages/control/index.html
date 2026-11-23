@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bot-Call 控制面板</title>
+<link rel="stylesheet" href="control.css">
+<script src="control.js" defer></script>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+<div class="brand"><span class="brand-name">Bot-Call</span><span class="brand-sub">控制面板</span><span id="version" class="chip"></span></div>
+<nav id="nav" aria-label="设置分类"></nav>
+</aside>
+<div id="content" class="content">
+<main>
+<header><h1 id="category-title" class="category-title"></h1><div class="head-actions"><span id="calls" class="calls"></span><button id="refresh" type="button">刷新</button></div></header>
+<p class="lead">保存的效果与在 AstrBot 插件配置页修改完全一致。模型与语音的 Key 在 AstrBot 中管理，这里不显示也不修改。</p>
+<p id="readonly" class="notice warn" hidden></p>
+<p id="access-rejection" class="notice warn" hidden></p>
+<div id="notice" class="notice" role="status" hidden></div>
+<div id="reload-bar" hidden><p id="reload-hint"></p><button id="reload" type="button" hidden>重载生效</button></div>
+<p id="loading" class="loading" role="status">正在读取设置…</p>
+<div id="groups"></div>
+<p class="foot">运行状态、通话回顾和耗时请看左侧菜单里的 Bot-Call“评测与诊断”页；接入配置见插件说明（README）中的“固定 HTTPS”一节。</p>
+</main>
+<div id="actions" class="actions" hidden><span id="dirty" class="chip">没有未保存的修改</span><span class="spacer"></span><button id="discard" type="button" disabled>放弃修改</button><button id="save" type="button" class="primary" disabled>保存修改</button></div>
+</div>
+</div>
+</body>
+</html>

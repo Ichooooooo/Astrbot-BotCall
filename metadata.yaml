@@ -1,0 +1,9 @@
+{
+  "name": "astrbot_plugin_bot_call",
+  "display_name": "Bot-Call",
+  "author": "icho",
+  "desc": "在 QQ 私聊中发起网页语音通话，支持插话打断、逐句朗读和通话回顾。",
+  "version": "1.0.0",
+  "repo": "https://github.com/Ichooooooo/Astrbot-BotCall",
+  "astrbot_version": ">=4.27.2,!=4.28.*"
+}

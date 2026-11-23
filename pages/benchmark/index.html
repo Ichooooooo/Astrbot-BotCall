@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bot-Call 评测与诊断</title>
+<link rel="stylesheet" href="benchmark.css">
+<script src="benchmark.js" defer></script>
+</head>
+<body>
+<main>
+<header>
+<div class="title"><h1>评测与诊断</h1><p class="lead">一页看清 Bot-Call 现在是否就绪，以及电话从“说完话”到“听到第一声”用了多久、慢在哪一段。数据来自服务状态和你最近的通话，只含状态与耗时数字，不含通话内容和密钥。</p></div>
+<div class="head-actions"><span id="updated" class="updated"></span><button id="copy" type="button" disabled>复制数据</button><button id="refresh" type="button">刷新</button></div>
+</header>
+<div id="notice" class="notice" role="status" hidden></div>
+<div id="copy-notice" class="notice" role="status" hidden></div>
+<p id="loading" class="loading" role="status">正在读取评测与诊断数据…</p>
+<div id="content" hidden>
+<section id="health" class="card health" aria-labelledby="health-title">
+<div class="card-head"><h2 id="health-title">总体状况</h2><span id="health-tag" class="tag"></span></div>
+<p id="health-text" class="big-line"></p>
+<ul id="health-items" class="plain-list"></ul>
+<p class="foot">“就绪”只表示服务端的配置和状态正常，不代表手机和公网已经实测通过。</p>
+</section>
+<section aria-labelledby="active-title" id="active-card" class="card">
+<div class="card-head"><h2 id="active-title" tabindex="-1">当前通话</h2></div>
+<div id="active-call"></div>
+<div id="hangup-notice" class="notice" role="status" hidden></div>
+</section>
+<section id="overview" class="card" aria-labelledby="overview-title">
+<div class="card-head"><h2 id="overview-title">标准配置基线</h2><span id="placeholder" class="tag warn" hidden>基线数据待更新</span></div>
+<p id="baseline-meta" class="sub"></p>
+<p id="baseline-total" class="big-line"></p>
+<h3>配置对照</h3>
+<p id="diff-summary" class="sub"></p>
+<div id="config" class="config" role="table" aria-label="标准配置与你的当前配置对照"></div>
+<p class="foot">模型按编号（model）比较，不看显示名称。</p>
+</section>
+<section id="stages-card" class="card" aria-labelledby="stages-title">
+<div class="card-head"><h2 id="stages-title">分段对比</h2></div>
+<p id="stages-summary" class="sub"></p>
+<div class="legend" aria-hidden="true"><span><i class="swatch base"></i>标准配置</span><span><i class="swatch mine"></i>你的通话</span><span><i class="swatch over"></i>明显偏慢</span><span><i class="swatch faint"></i>浅色延伸到 p90</span></div>
+<div id="stages"></div>
+<p class="foot">条形的深色长度是中位数（一半的通话比它快），浅色延伸到 p90（约 9/10 的通话不超过它）。各段之间有重叠，并含手机端计时，所以“说完到首声”不等于各段相加。</p>
+</section>
+<section id="hints-card" class="card" aria-labelledby="hints-title">
+<div class="card-head"><h2 id="hints-title">提示（接入配置见插件说明 README 中的“固定 HTTPS”一节）</h2></div>
+<ul id="hints" class="hint-list"></ul>
+<p id="hints-empty" class="sub" hidden></p>
+</section>
+<section id="test-card" class="card" aria-labelledby="test-title">
+<div class="card-head"><h2 id="test-title">一键测试</h2></div>
+<p class="sub">用一段内置的固定录音，依次测一遍语音识别、对话模型和语音合成各自要多久，并顺便检查安装环境。只有你点按钮时才会运行，不会定时或自动测试。</p>
+<div class="run-bar"><button id="run" type="button" class="primary">开始一键测试</button><span class="cost-note">会真实调用一次识别、对话和合成服务，产生少量费用。</span></div>
+<div id="run-notice" class="notice" role="status" hidden></div>
+<div id="run-progress" class="progress" hidden><div class="progress-bar"></div></div>
+<p id="run-status" class="sub" role="status" hidden></p>
+<div id="run-result" hidden></div>
+</section>
+<section id="calls-card" class="card" aria-labelledby="calls-title">
+<div class="card-head"><h2 id="calls-title">最近通话</h2><span id="calls-count" class="sub"></span></div>
+<div id="calls-empty" class="empty" hidden><p class="empty-title">还没有可以分析的通话</p><p>先打一通电话，或点上面的“一键测试”，这里就会出现每一通的分段耗时。</p><button id="goto-test" type="button">去一键测试</button></div>
+<div id="calls"></div>
+</section>
+<section id="status-card" class="card" aria-labelledby="status-title">
+<div class="card-head"><h2 id="status-title">运行状态</h2></div>
+<p id="status-empty" class="sub" hidden>当前插件没有提供运行状态，可能是版本较旧，请升级插件后刷新。</p>
+<dl id="status" class="facts">
+<dt>插件版本</dt><dd id="st-version"></dd>
+<dt>插件</dt><dd id="st-plugin"></dd>
+<dt>HTTPS 入口</dt><dd id="st-https"></dd>
+<dt>通话页地址</dt><dd id="st-page"></dd>
+<dt>接入方式</dt><dd id="st-access"></dd>
+<dt>电话对话模型</dt><dd id="st-model"></dd>
+</dl>
+<p class="foot">此区块只读取状态，不创建通话、不上传音频、不发送消息、不调用模型；“就绪”不验证外网是否可达，也不验证服务余额。</p>
+</section>
+<section id="reviews-card" class="card" aria-labelledby="reviews-title">
+<div class="card-head"><h2 id="reviews-title" tabindex="-1">通话回顾</h2><span id="reviews-tag" class="tag" hidden></span></div>
+<p id="reviews-summary" class="sub"></p>
+<div id="review-notice" class="notice" role="status" hidden></div>
+<div id="review-reasons" class="chips"></div>
+<div id="reviews-empty" class="empty" hidden><p class="empty-title">没有未完成的回顾</p><p>挂断后的通话回顾都已处理完。</p></div>
+<ul id="reviews" class="rows"></ul>
+<p id="reviews-more" class="sub" hidden></p>
+<p class="foot">只显示最近的未完成回顾（最多 20 条）；本页刷新不会调用模型或发送消息。失败的回顾可以点“重试”：会先让你确认将使用的模型和调用次数，确认后才调用模型，默认只写入聊天记忆、不在 QQ 发消息。“历史保留”的回顾需要管理员明确指定通话后才会补做。回顾未完成时，不要把“已挂断”理解为已经投递。</p>
+</section>
+</div>
+</main>
+<div id="copy-dialog" class="overlay" role="dialog" aria-modal="true" aria-labelledby="copy-dialog-title" hidden>
+<div class="dialog">
+<h2 id="copy-dialog-title">手动复制数据</h2>
+<p class="sub">浏览器没有允许页面直接写入剪贴板。请在下面的文本框里全选并复制（点“全选并复制”，或长按文本框、按 Ctrl+A / Ctrl+C），再粘贴给 AI。</p>
+<textarea id="copy-text" readonly rows="12" spellcheck="false" aria-label="要复制的数据"></textarea>
+<p id="copy-dialog-note" class="sub" role="status"></p>
+<div class="dialog-actions"><button id="copy-select" type="button" class="primary">全选并复制</button><button id="copy-close" type="button">关闭</button></div>
+</div>
+</div>
+<div id="hangup-dialog" class="overlay" role="dialog" aria-modal="true" aria-labelledby="hangup-title" aria-describedby="hangup-description" tabindex="-1" hidden>
+<div class="dialog">
+<h2 id="hangup-title">强制挂断</h2>
+<p id="hangup-description" class="sub">确认后将立即结束这通电话并释放线路。已有对话内容仍会照常生成通话回顾。</p>
+<p id="hangup-target" class="sub"></p>
+<div id="hangup-error" class="notice" role="alert" hidden></div>
+<p id="hangup-progress" class="sub" role="status" hidden>正在挂断…</p>
+<div class="dialog-actions"><button id="hangup-submit" type="button" class="primary">确认挂断</button><button id="hangup-cancel" type="button">取消</button></div>
+</div>
+</div>
+<div id="retry-dialog" class="overlay" role="dialog" aria-modal="true" aria-labelledby="retry-title" hidden>
+<div class="dialog">
+<h2 id="retry-title">重试通话回顾</h2>
+<p id="retry-target" class="sub"></p>
+<p id="retry-loading" class="sub" role="status" hidden>正在向插件确认这次重试会做什么…（还没有调用模型）</p>
+<div id="retry-error" class="notice" role="alert" hidden></div>
+<div id="retry-body" hidden>
+<p class="sub">确认后才会重新调用回顾模型，可能产生少量费用。请先看清下面的内容。</p>
+<dl class="facts">
+<dt>将使用的模型</dt><dd id="retry-model"></dd>
+<dt>预计调用次数</dt><dd id="retry-calls"></dd>
+</dl>
+<div id="retry-rebill" class="notice warn" hidden>上次请求可能已计费，重试可能重复计费。</div>
+<ul id="retry-notes" class="plain-list"></ul>
+<label class="check"><input id="retry-send" type="checkbox"><span>同时发到 QQ</span></label>
+<p class="sub">默认只写入聊天记忆，不在 QQ 发消息；勾选后，回顾结果也会发到 QQ。</p>
+</div>
+<div id="retry-progress" class="progress" hidden><div class="progress-bar"></div></div>
+<p id="retry-status" class="sub" role="status" hidden>正在重试，模型调用可能需要几十秒，请不要重复点击。</p>
+<div class="dialog-actions"><button id="retry-confirm" type="button" class="primary" disabled>确认重试</button><button id="retry-cancel" type="button">取消</button></div>
+</div>
+</div>
+</body>
+</html>
