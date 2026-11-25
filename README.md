@@ -2,6 +2,10 @@
 
 AstrBot 插件：在 QQ 私聊里和机器人打网页语音电话。
 
+<p align="center">
+  <img src="docs/images/call-demo.webp" width="720" alt="Bot-Call 手机网页通话界面示例：准备界面与通话界面" />
+</p>
+
 ## 功能
 
 - **QQ 私聊发起语音通话**：私聊发送 `/botcall`（或直接让机器人给你打电话），手机点开链接就能聊。
